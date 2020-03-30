@@ -1,0 +1,24 @@
+{
+  "name": "inviare",
+  "version": "1.0.0",
+  "description": "inbound parse webhook for bostonhacks email",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bostonhacks/inviare.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Bostonhacks/inviare/issues"
+  },
+  "homepage": "https://github.com/Bostonhacks/inviare#readme",
+  "dependencies": {
+    "@sendgrid/mail": "^6.5.5",
+    "dotenv": "^8.2.0",
+    "express": "^4.17.1"
+  }
+}
