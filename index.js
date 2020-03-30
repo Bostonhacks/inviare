@@ -1,12 +1,16 @@
 require('dotenv').config();
 const express = require('express');
-const app = express();
+const multer  = require('multer')
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+const app = express();
+const upload = multer();
+
 app.get('/', (req, res) => res.send('Parser is running!'));
 
-app.post('/parse', (req, res) => {
+app.post('/parse', upload.none(), (req, res) => {
+  console.log(req.body);
   const msg = {
     to: 'rooday@bu.edu',
     from: 'contact@bostonhacks.io',
