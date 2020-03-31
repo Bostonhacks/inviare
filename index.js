@@ -47,9 +47,9 @@ app.post('/parse', upload.none(), (req, res) => {
       return {
         from: 'BostonHacks <contact@bostonhacks.io>',
         to: toField,
-        cc: parsed.cc.text,
-        bcc: parsed.bcc.text,
-        replyTo: parsed.from.text,
+        replyTo: parsed.from.text, // Have to access text property as MailParser converts addresses into objects
+        cc: parsed.cc ? parsed.cc.text : undefined, 
+        bcc: parsed.bcc ? parsed.bcc.text : undefined,
         subject: parsed.subject,
         text: parsed.text,
         html: parsed.html,
