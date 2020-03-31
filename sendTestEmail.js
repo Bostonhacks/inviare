@@ -6,6 +6,12 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 const questions = [
   {
     type: 'text',
+    name: 'to',
+    message: "Who's this to?",
+    initial: "BostonHacks <contact@bostonhacks.io>"
+  },
+  {
+    type: 'text',
     name: 'from',
     message: "Who's this from?",
     initial: "Keanu Reeves <therealkeanu@askreeves.com>"
@@ -27,7 +33,7 @@ const questions = [
 (async () => {
   const response = await prompts(questions);
   const msg = {
-    to: 'BostonHacks <contact@bostonhacks.io>',
+    to: response.to,
     from: response.from,
     subject: response.subject,
     text: response.text

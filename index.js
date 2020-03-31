@@ -10,12 +10,16 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY); // Make sure this is set!
 const app = express();
 const upload = multer(); // Middleware to allow our endpoint to receive multipart/form-data
 let TEAM_EMAILS = [];
+let ROUTES = {};
 
 // Fetch current team members
 axios
   .get('https://raw.githubusercontent.com/Bostonhacks/squadra/master/team.yml') // Look at this delicious backwards compatability
   .then(res => {
     const doc = yaml.safeLoad(res.data);
+    doc.routes.forEach(route => {
+      ROUTES[route.name] = route.formatted
+    });
     TEAM_EMAILS = doc.members
       .filter(member => member.status !== "inactive") // Filter out inactive members
       .map(member => { // Keep only their name/email and routes
@@ -25,7 +29,8 @@ axios
           routes 
         };
       })
-    console.log('Team emails set:', TEAM_EMAILS);
+    console.log('TEAM_EMAILS set:', TEAM_EMAILS);
+    console.log('ROUTES set:', ROUTES)
   })
   .catch(error => console.error(error));
 
@@ -35,8 +40,14 @@ app.get('/', (req, res) => res.send('Parser is running!'));
 app.post('/parse', upload.none(), (req, res) => {
   console.log('Received Email:', req.body);
 
-  // Send email to relevant members
+  // Grab formatted fromField, fallbock to route
   const route = JSON.parse(req.body.envelope).to[0];
+  let fromField = route;
+  if (ROUTES.hasOwnProperty(route)){
+    fromField = ROUTES[route];
+  }
+
+  // Send email only to relevant members
   const toField = TEAM_EMAILS.filter(member => member.routes.includes(route)).map(member => member.email);
 
   // Attempt to parse email
@@ -57,7 +68,7 @@ app.post('/parse', upload.none(), (req, res) => {
       });
 
       return {
-        from: 'BostonHacks <contact@bostonhacks.io>',
+        from: fromField,
         to: toField,
         replyTo: parsed.from.text, // Have to access text property as MailParser converts addresses into objects
         cc: parsed.cc ? parsed.cc.text : undefined, // These address fields may not exist, so check for that
@@ -74,7 +85,7 @@ app.post('/parse', upload.none(), (req, res) => {
       console.log("Sending email text as fallback");
 
       return {
-        from: 'BostonHacks <contact@bostonhacks.io>',
+        from: fromField,
         to: toField,
         replyTo: req.body.from,
         subject: req.body.subject,
