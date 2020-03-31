@@ -37,6 +37,7 @@ app.post('/parse', upload.none(), (req, res) => {
 
   // Send email to relevant members
   const route = JSON.parse(req.body.envelope).to[0];
+  console.log('Route:', route);
   const toField = TEAM_EMAILS.filter(member => member.routes.includes(route)).map(member => member.email);
 
   // Attempt to parse email
