@@ -2,7 +2,7 @@ require('dotenv').config();
 const axios = require('axios');
 const yaml = require('js-yaml');
 const express = require('express');
-const multer  = require('multer')
+const multer  = require('multer');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -39,7 +39,7 @@ app.post('/parse', upload.none(), (req, res) => {
       res.send('Email forwarded!');
     })
     .catch(error => {
-      console.error('Email forwarding failed!', error.body.errors);
+      console.error('Error:', error);
       res.status(500).send('Email forwarding failed!');
     });
 });
