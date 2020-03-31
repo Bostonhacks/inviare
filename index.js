@@ -39,6 +39,7 @@ app.post('/parse', upload.none(), (req, res) => {
   const route = JSON.parse(req.body.envelope).to[0];
   console.log('Route:', route);
   const toField = TEAM_EMAILS.filter(member => member.routes.includes(route)).map(member => member.email);
+  console.log('toField:', toField);
 
   // Attempt to parse email
   simpleParser(req.body.email, { skipImageLinks: true })
