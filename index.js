@@ -15,15 +15,15 @@ app.post('/parse', upload.none(), (req, res) => {
 
   const msg = {
     to: 'rooday@bu.edu', // [of bhacks members]
-    from: 'contact@bostonhacks.io',
+    from: 'BostonHacks <contact@bostonhacks.io>',
     replyTo: req.body.from,
     subject: req.body.subject,
-    text: 'and easy to do anywhere, even with Node.js',
-    html: '<strong>and easy to do anywhere, even with Node.js</strong>',
+    text: req.body.text,
+    html: req.body.html,
   };
 
   sgMail
-    .send(msg)
+    .send(msg) // sendMultiple()
     .then(() => {
       res.send('Email forwarded!');
     })
