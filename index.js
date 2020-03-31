@@ -21,7 +21,7 @@ axios
       .map(member => { // Keep only their name/email and routes
         const { email, routes } = member.sendgrid;
         return { 
-          name: `${member.name} <${email}>`, 
+          email: `${member.name} <${email}>`, 
           routes 
         };
       })
@@ -37,9 +37,7 @@ app.post('/parse', upload.none(), (req, res) => {
 
   // Send email to relevant members
   const route = JSON.parse(req.body.envelope).to[0];
-  console.log('Route:', route);
   const toField = TEAM_EMAILS.filter(member => member.routes.includes(route)).map(member => member.email);
-  console.log('toField:', toField);
 
   // Attempt to parse email
   simpleParser(req.body.email, { skipImageLinks: true })
