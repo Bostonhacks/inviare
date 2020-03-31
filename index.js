@@ -39,7 +39,7 @@ app.post('/parse', upload.none(), (req, res) => {
       res.send('Email forwarded!');
     })
     .catch(error => {
-      console.error('Error:', error);
+      console.error(error.response.body);
       res.status(500).send('Email forwarding failed!');
     });
 });
