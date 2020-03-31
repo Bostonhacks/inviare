@@ -34,7 +34,7 @@ app.post('/parse', upload.none(), (req, res) => {
       console.log("Parsed email:", parsed);
 
       // Convert parsed attachments to form SendGrid expects
-      parsed.attachments.map(attachment => {
+      const attachments = parsed.attachments.map(attachment => {
         return {
           content: attachment.content.toString('base64'), // MailParser turns content into a buffer, so we need to turn it back to base64
           filename: attachment.filename,
@@ -53,7 +53,7 @@ app.post('/parse', upload.none(), (req, res) => {
         subject: parsed.subject,
         text: parsed.text,
         html: parsed.html ? parsed.html : parsed.textAsHtml,
-        attachments: parsed.attachments
+        attachments: attachments
       };
     })
     .catch(error => {
