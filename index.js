@@ -52,7 +52,7 @@ app.post('/parse', upload.none(), (req, res) => {
         bcc: parsed.bcc ? parsed.bcc.text : undefined,
         subject: parsed.subject,
         text: parsed.text,
-        html: parsed.html,
+        html: parsed.html ? parsed.html : parsed.textAsHtml,
         attachments: parsed.attachments
       };
     })
