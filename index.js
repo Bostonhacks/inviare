@@ -35,6 +35,7 @@ app.post('/parse', upload.none(), (req, res) => {
   sgMail
     .sendMultiple(msg)
     .then(() => {
+      console.log('Email forwarded!');
       res.send('Email forwarded!');
     })
     .catch(error => {
