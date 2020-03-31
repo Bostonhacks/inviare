@@ -24,7 +24,7 @@ app.post('/parse', upload.none(), (req, res) => {
   console.log('Received Email:', req.body);
 
   const msg = {
-    to: ['Rishab Nayak <rishab@bu.edu>', 'Rudhra Raveendran <rooday@bu.edu>'], //TEAM_EMAILS,
+    to: TEAM_EMAILS,
     from: 'BostonHacks <contact@bostonhacks.io>',
     replyTo: req.body.from,
     subject: req.body.subject,
@@ -34,8 +34,8 @@ app.post('/parse', upload.none(), (req, res) => {
 
   sgMail
     .sendMultiple(msg)
-    .then((a, b, c) => {
-      console.log('Email forwarded!', a, b, c);
+    .then(() => {
+      console.log('Email forwarded!');
       res.send('Email forwarded!');
     })
     .catch(error => {
@@ -43,7 +43,6 @@ app.post('/parse', upload.none(), (req, res) => {
       res.status(500).send('Email forwarding failed!');
     });
 });
-
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`Example app listening on port ${port}!`));
