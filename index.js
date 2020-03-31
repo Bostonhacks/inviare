@@ -10,6 +10,7 @@ const app = express();
 const upload = multer(); // Middleware to allow our endpoint to receive multipart/form-data
 const TEAM_EMAILS = [];
 
+// Fetch current team members
 axios
   .get('https://raw.githubusercontent.com/Bostonhacks/squadra/master/team.yml') // Look at this delicious backwards compatability
   .then(res => {
@@ -46,9 +47,9 @@ app.post('/parse', upload.none(), (req, res) => {
       return {
         from: 'BostonHacks <contact@bostonhacks.io>',
         to: toField,
-        cc: parsed.cc,
-        bcc: parsed.bcc,
-        replyTo: parsed.from,
+        cc: parsed.cc.text,
+        bcc: parsed.bcc.text,
+        replyTo: parsed.from.text,
         subject: parsed.subject,
         text: parsed.text,
         html: parsed.html,
