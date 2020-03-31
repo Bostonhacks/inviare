@@ -28,7 +28,10 @@ app.post('/parse', upload.none(), (req, res) => {
 
   // Attempt to parse email
   simpleParser(req.body.email, { skipImageLinks: true })
-    .then(parsed => { // Parsing success! Use this information to reconstruct email
+    .then(parsed => {
+      // Parsing success! Use this information to reconstruct email
+      console.log("Parsed email:", parsed);
+
       // Convert parsed attachments to form SendGrid expects
       parsed.attachments.map(attachment => {
         return {
@@ -52,7 +55,8 @@ app.post('/parse', upload.none(), (req, res) => {
         attachments: parsed.attachments
       };
     })
-    .catch(error => { // Parsing failure! Just use the text that SendGrid extracts so we have something
+    .catch(error => {
+      // Parsing failure! Just use the text that SendGrid extracts so we have something
       console.error("Failed to parse email:", error);
       console.log("Sending email text as fallback");
 
@@ -61,7 +65,7 @@ app.post('/parse', upload.none(), (req, res) => {
         to: toField,
         replyTo: req.body.from,
         subject: req.body.subject,
-        text: req.body.text
+        text: req.body.text || `<ERROR: FAILED TO RETRIEVE EMAIL CONTENT>`
       };
     })
     .then(msg => { // Regardless of parsing status, we'll have something at this point so send it
