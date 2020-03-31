@@ -24,7 +24,7 @@ app.post('/parse', upload.none(), (req, res) => {
   console.log('Received Email:', req.body);
 
   const msg = {
-    to: 'Rudhra Raveendran <rooday@bu.edu>'//TEAM_EMAILS,
+    to: 'Rudhra Raveendran <rooday@bu.edu>',//TEAM_EMAILS,
     from: 'BostonHacks <contact@bostonhacks.io>',
     replyTo: req.body.from,
     subject: req.body.subject,
