@@ -24,7 +24,7 @@ app.post('/parse', upload.none(), (req, res) => {
   console.log('Received Email:', req.body);
 
   const msg = {
-    to: ['Rudhra Raveendran <rooday@bu.edu>'],//TEAM_EMAILS,
+    to: ['Rishab Nayak <rishab@bu.edu>', 'Rudhra Raveendran <rooday@bu.edu>'], //TEAM_EMAILS,
     from: 'BostonHacks <contact@bostonhacks.io>',
     replyTo: req.body.from,
     subject: req.body.subject,
@@ -34,8 +34,8 @@ app.post('/parse', upload.none(), (req, res) => {
 
   sgMail
     .sendMultiple(msg)
-    .then(() => {
-      console.log('Email forwarded!');
+    .then((a, b, c) => {
+      console.log('Email forwarded!', a, b, c);
       res.send('Email forwarded!');
     })
     .catch(error => {
