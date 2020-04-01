@@ -39,6 +39,7 @@ app.get('/', (req, res) => res.send('Parser is running!'));
 
 app.post('/parse', upload.none(), (req, res) => {
   console.log('Received Email:', req.body);
+  console.log("********************* spam:", req.body.spam_score);
 
   // Grab formatted fromField, fallbock to route
   const route = JSON.parse(req.body.envelope).to[0];
