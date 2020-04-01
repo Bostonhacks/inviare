@@ -94,7 +94,7 @@ app.post('/parse', upload.none(), (req, res) => {
     })
     .then(msg => {
       // Regardless of parsing status, we'll have something at this point so send it
-      sgMail
+      /*sgMail
         .sendMultiple(msg)
         .then(() => {
           console.log('Email forwarded!');
@@ -106,7 +106,7 @@ app.post('/parse', upload.none(), (req, res) => {
             console.error(error.response.body)
           }
           res.status(500).send('Email forwarding failed!');
-        });
+        });*/
     });
 });
 
