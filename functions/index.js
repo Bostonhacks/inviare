@@ -6,13 +6,12 @@ require('dotenv').config();
 const axios = require('axios');
 const yaml = require('js-yaml');
 const express = require('express');
-const fileParser = require('express-multipart-file-parser')
+const Busboy = require('busboy');
 const simpleParser = require('mailparser').simpleParser;
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY); // Make sure this is set!
 
 const app = express();
-app.use(fileParser)
 let TEAM_EMAILS = [];
 let ROUTES = {};
 
@@ -41,6 +40,37 @@ axios
 
 // Easy way to check that this didn't die
 app.get('/', (req, res) => res.send('Parser is running!'));
+
+app.use((req, res, next) => {
+    const busboy = new Busboy({ headers: req.headers })
+    let fileBuffer = new Buffer('')
+    req.files = {
+        file: []
+    }
+    busboy.on('field', (fieldname, value) => {
+        req.body[fieldname] = value
+    })
+    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        file.on('data', (data) => {
+            fileBuffer = Buffer.concat([fileBuffer, data])
+        })
+        file.on('end', () => {
+            const file_object = {
+                fieldname,
+                'originalname': filename,
+                encoding,
+                mimetype,
+                buffer: fileBuffer
+            }
+            req.files.file.push(file_object)
+        })
+    })
+    busboy.on('finish', () => {
+        next()
+    })
+    busboy.end(req.rawBody)
+    req.pipe(busboy)
+})
 
 app.post('/parse', (req, res) => {
     console.log('Received Email:', req.body);
