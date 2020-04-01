@@ -40,7 +40,7 @@ app.get('/', (req, res) => res.send('Parser is running!'));
 app.post('/parse', upload.none(), (req, res) => {
   console.log('Received Email:', req.body);
   console.log("********************* spam:", req.body.spam_score);
-  console.log("********************* threshold broke?:", req.body.spam_score >= process.env.SPAM_THRESHOLD);
+  console.log("********************* threshold broke?:", parseFloat(req.body.spam_score) >= parseFloat(process.env.SPAM_THRESHOLD));
 
   // Grab formatted fromField, fallbock to route
   const route = JSON.parse(req.body.envelope).to[0];
@@ -91,7 +91,7 @@ app.post('/parse', upload.none(), (req, res) => {
         to: toField,
         replyTo: req.body.from,
         subject: req.body.subject,
-        text: req.body.text || `<ERROR: FAILED TO RETRIEVE EMAIL CONTENT>` // Contrary to the docs, this field isn't sent. I'm hoping this gets fixed soon
+        text: req.body.text || '' // Fallback in case the email had no text
       };
     })
     .then(msg => {
