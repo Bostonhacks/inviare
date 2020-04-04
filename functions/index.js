@@ -8,8 +8,9 @@ const yaml = require('js-yaml');
 const Busboy = require('busboy');
 const simpleParser = require('mailparser').simpleParser;
 const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY); // Make sure this is set!
+sgMail.setApiKey(functions.config().parser.sg_api_key); // Make sure this is set!
 
+const SPAM_THRESHOLD = functions.config().parser.spam_threshold;
 let TEAM_EMAILS = [];
 let ROUTES = {};
 
@@ -38,43 +39,25 @@ let ROUTES = {};
 
 module.exports.parser = functions.https.onRequest((req, res) => {
     console.log('Received Email Buffer:', req.rawBody);
+
     const busboy = new Busboy({ headers: req.headers });
-    const bussed = {};
-    let fileBuffer = new Buffer('')
-    req.files = {
-        file: []
-    }
+    const bussedEmail = {};
+
     busboy.on('field', (fieldname, value) => {
-        req.body[fieldname] = value;
-        bussed[fieldname] = value;
-    })
-    busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        file.on('data', (data) => {
-            fileBuffer = Buffer.concat([fileBuffer, data])
-        })
-        file.on('end', () => {
-            const file_object = {
-                fieldname,
-                'originalname': filename,
-                encoding,
-                mimetype,
-                buffer: fileBuffer
-            }
-            req.files.file.push(file_object)
-        })
-    })
+        bussedEmail[fieldname] = value;
+    });
+
     busboy.on('finish', () => {
-        console.log('Busboy finished 1:', req.body);
-        console.log('Busboy finished 2:', bussed);
-        console.log(`Received spam_score: ${req.body.spam_score}. SPAM_THRESHOLD: ${process.env.SPAM_THRESHOLD}`);
+        console.log('Busboy finished:', bussedEmail);
+        console.log(`Received spam_score: ${bussedEmail.spam_score}. spam_threshold: ${SPAM_THRESHOLD}`);
 
         // If spam_score is too high, drop it like its porn
-        if (parseFloat(req.body.spam_score) >= parseFloat(process.env.SPAM_THRESHOLD)) {
+        if (parseFloat(bussedEmail.spam_score) >= parseFloat(SPAM_THRESHOLD)) {
             console.log("Received Spam!");
             res.send("Sorry buddy gonna drop this one");
         } else {
             // Grab formatted fromField, fallbock to route
-            const route = JSON.parse(req.body.envelope).to[0];
+            const route = JSON.parse(bussedEmail.envelope).to[0];
             let fromField = route;
             if (ROUTES.hasOwnProperty(route)) {
                 fromField = ROUTES[route];
@@ -84,7 +67,7 @@ module.exports.parser = functions.https.onRequest((req, res) => {
             const toField = ['Rishab Nayak <rishab@bu.edu>', 'Rudhra Raveendran <rooday@bu.edu>'];//TEAM_EMAILS.filter(member => member.routes.includes(route)).map(member => member.email);
 
             // Attempt to parse email
-            simpleParser(req.body.email, { skipImageLinks: true })
+            simpleParser(bussedEmail.email, { skipImageLinks: true })
                 .then(parsed => {
                     // Parsing success! Use this information to reconstruct email
                     console.log("Parsed email:", parsed);
@@ -120,9 +103,9 @@ module.exports.parser = functions.https.onRequest((req, res) => {
                     return {
                         from: fromField,
                         to: toField,
-                        replyTo: req.body.from,
-                        subject: req.body.subject,
-                        text: req.body.text || '' // Fallback in case the email had no text
+                        replyTo: bussedEmail.from,
+                        subject: bussedEmail.subject,
+                        text: bussedEmail.text || '' // Fallback in case the email had no text
                     };
                 })
                 .then(msg => {
@@ -142,6 +125,7 @@ module.exports.parser = functions.https.onRequest((req, res) => {
                         });
                 });
         }
-    })
+    });
+
     busboy.end(req.rawBody);
 });
