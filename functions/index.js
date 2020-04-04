@@ -66,6 +66,7 @@ module.exports.parser = functions.https.onRequest((req, res) => {
     busboy.on('finish', () => {
         console.log('Busboy finished 1:', req.body);
         console.log('Busboy finished 2:', bussed);
+        console.log(`Received spam_score: ${req.body.spam_score}. SPAM_THRESHOLD: ${process.env.SPAM_THRESHOLD}`);
 
         // If spam_score is too high, drop it like its porn
         if (parseFloat(req.body.spam_score) >= parseFloat(process.env.SPAM_THRESHOLD)) {
