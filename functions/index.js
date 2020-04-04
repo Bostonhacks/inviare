@@ -5,18 +5,16 @@ const functions = require('firebase-functions');
 require('dotenv').config();
 const axios = require('axios');
 const yaml = require('js-yaml');
-const express = require('express');
 const Busboy = require('busboy');
 const simpleParser = require('mailparser').simpleParser;
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY); // Make sure this is set!
 
-const app = express();
 let TEAM_EMAILS = [];
 let ROUTES = {};
 
 // Fetch current team members
-axios
+/*axios
     .get('https://raw.githubusercontent.com/Bostonhacks/squadra/master/team.yml') // Look at this delicious backwards compatability
     .then(res => {
         const doc = yaml.safeLoad(res.data);
@@ -36,16 +34,19 @@ axios
         console.log('TEAM_EMAILS set:', TEAM_EMAILS);
         console.log('ROUTES set:', ROUTES)
     })
-    .catch(error => console.error(error));
+    .catch(error => console.error(error));*/
 
 module.exports.parser = functions.https.onRequest((req, res) => {
-    const busboy = new Busboy({ headers: req.headers })
+    console.log('Received Email Buffer:', req.rawBody);
+    const busboy = new Busboy({ headers: req.headers });
+    const bussed = {};
     let fileBuffer = new Buffer('')
     req.files = {
         file: []
     }
     busboy.on('field', (fieldname, value) => {
-        req.body[fieldname] = value
+        req.body[fieldname] = value;
+        bussed[fieldname] = value;
     })
     busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
         file.on('data', (data) => {
@@ -63,7 +64,8 @@ module.exports.parser = functions.https.onRequest((req, res) => {
         })
     })
     busboy.on('finish', () => {
-        console.log('Received Email:', req.body);
+        console.log('Busboy finished 1:', req.body);
+        console.log('Busboy finished 2:', bussed);
 
         // If spam_score is too high, drop it like its porn
         if (parseFloat(req.body.spam_score) >= parseFloat(process.env.SPAM_THRESHOLD)) {
@@ -140,5 +142,5 @@ module.exports.parser = functions.https.onRequest((req, res) => {
                 });
         }
     })
-    busboy.end(req.rawBody)
+    busboy.end(req.rawBody);
 });
