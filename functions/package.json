@@ -17,8 +17,8 @@
     "axios": "^0.19.2",
     "busboy": "^0.3.1",
     "dotenv": "^8.2.0",
-    "firebase-admin": "^8.6.0",
-    "firebase-functions": "^3.3.0",
+    "firebase-admin": "^11.4.1",
+    "firebase-functions": "^3.24.1",
     "js-yaml": "^3.13.1",
     "mailparser": "^2.7.7"
   },
